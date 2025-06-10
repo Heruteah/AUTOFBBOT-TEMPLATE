@@ -1,4 +1,4 @@
 ## API
-sh```
+sh``
 https://kaiz-apis.gleeze.com
-```
+``
