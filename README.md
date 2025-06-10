@@ -19,11 +19,17 @@
    ```bash
    npm install
    ```
-
+   
 4. **Provide your API Key**:
    - Your API key:
      ```
      https://kaiz-apis.gleeze.com/api/gpt-3.5?q=Hello&apikey=your_api_key_here
      ```
-     **JAY MAR**
+5. ## Usage
+
+Run the bot with the following command:
+```bash
+node index.js
+```
+## — JAYMAR
      
