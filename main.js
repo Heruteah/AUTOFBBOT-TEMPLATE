@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const login = require('ws3-fca');
+const { login } = require('biar-fca');
 const express = require('express');
 const app = express();
 const chalk = require('chalk');
