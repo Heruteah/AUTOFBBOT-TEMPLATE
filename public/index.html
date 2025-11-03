@@ -1,331 +1,709 @@
-<!-- PROVIDE YOUR OWN APIKEY -->
-<!-- DESIGN BY: JAYMAR -->
-<!-- OWNIRSV2-API: https://kaiz-apis.gleeze.com/ -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AUTOFBBOT</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="https://l.top4top.io/p_3203n4uzy0.jpeg">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoFBBot - Facebook Messenger Bot Platform</title>
+    <link rel="icon" type="image/x-icon" href="https://l.top4top.io/p_3203n4uzy0.jpeg">
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            box-sizing: border-box;
         }
 
-        .sticky-header {
-            background-color: rgba(53, 92, 125, 0.8);
-            color: white;
-            padding: 15px 20px;
-            font-size: 20px;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px 40px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            gap: 15px;
         }
 
-        .sticky-header span {
-            flex-grow: 1;
-            text-align: left;
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .sticky-header i {
-            font-size: 1.5rem;
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
         }
 
-        .container {
-            margin: 30px auto;
-            max-width: 400px;
-            text-align: center;
+        .logo-text p {
+            font-size: 12px;
+            color: var(--gray);
+            margin: 0;
         }
 
-        .header {
-            font-size: 1.5rem;
-            font-weight: bold;
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-decoration: none;
+            color: var(--dark);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn.primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Main Content */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card-header {
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Form Styles */
+        .form-group {
             margin-bottom: 20px;
-            text-align: center;
-        }
-
-         .form-group {
-            margin-bottom: 15px;
         }
 
         .form-label {
             display: block;
-            font-weight: 500;
-            margin-bottom: 5px;
-            text-align: left;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 14px;
         }
 
-        .form-control {
+        .form-input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
         }
 
-.input-field::placeholder {
-    color: #bbb;
-}
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
 
-.input-field:focus {
-    border-color: #355c7d;
-}
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
 
-
-        .checkbox-container {
+        .checkbox-wrapper {
             display: flex;
             align-items: center;
-            justify-content: start;
-            margin-top: 10px;
+            gap: 10px;
+            margin: 20px 0;
         }
 
-        .checkbox-container input {
-            margin-right: 10px;
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
         }
 
         .submit-btn {
-            background-color: #355c7d;
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient);
             color: white;
-            font-weight: bold;
-            padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin: 0 auto;
-            display: block;
-            width: 100px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
         }
 
         .submit-btn:disabled {
-            background-color: #ccc;
+            background: var(--border);
             cursor: not-allowed;
+            box-shadow: none;
         }
 
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Stats */
+        .stats-wrapper {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* Footer */
         .footer {
             text-align: center;
-            font-size: 12px;
-            margin-top: 20px;
-            color: #888;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
         }
 
-        .robot-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
         }
 
-        .custom-swal-popup {
-    background-color: rgba(53, 92, 125, 0.8);
-    color: white;
-    border-radius: 10px;
-}
-
-.custom-swal-title {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.custom-swal-html {
-    color: #e0e0e0;
-    font-size: 1rem;
-    text-align: left;
-}
-
-.custom-swal-confirm {
-    background-color: #355c7d;
-    color: white;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.custom-swal-confirm:hover {
-    background-color: #2a4760;
-}
-
-        .robot-container {
-    background: linear-gradient(145deg, #2c3e50, #355c7d);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    margin: 30px auto;
-    padding: 20px;
-    color: white;
-    font-family: 'Montserrat', sans-serif;
-    text-align: center;
-}
-
-.robot-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-}
-
-.robot-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.robot-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #f4f4f9;
-}
-
-.robot-body {
-    margin-top: 15px;
-}
-
-.robot-text {
-    font-size: 1rem;
-    margin-bottom: 20px;
-    line-height: 1.5;
-    color: #e0e0e0;
-}
-
-.robot-action-btn {
-    background-color: #3182ce;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.robot-action-btn:hover {
-    background-color: #1d5b8f;
-}
-
-        .robot-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
+        /* Loading Animation */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .robot-icon-svg {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: inline-block;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .card {
+                padding: 25px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="sticky-header">
-    <span>AUTO FBBOT</span>
-    <svg xmlns="https://i.imgur.com/eK7r0Lz.jpeg" viewBox="0 0 64 64" class="robot-icon-svg">
-        <circle cx="32" cy="32" r="30" fill="#355c7d" stroke="#fff" stroke-width="4"></circle>
-        <rect x="22" y="22" width="20" height="12" rx="2" ry="2" fill="#fff"></rect>
-        <circle cx="27" cy="28" r="2" fill="#355c7d"></circle>
-        <circle cx="37" cy="28" r="2" fill="#355c7d"></circle>
-        <path d="M24 40h16v4H24z" fill="#fff"></path>
-    </svg>
-    </div>
-    <div class="container">
-        <div class="centered-box">
-            <div class="header">Autobot Beta.v1</div>
-            <form id="json-form" onsubmit="State(); return false;">
-                <div class="form-group">
-                    <label for="inputOfPrefix" class="form-label">Prefix (optional)</label>
-                    <input type="text" id="inputOfPrefix" class="form-control" placeholder="Choose one: .$, #, @, !, etc.">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [formData, setFormData] = useState({
+                prefix: '',
+                adminUID: '',
+                appstate: ''
+            });
+            const [agreed, setAgreed] = useState(false);
+            const [commands, setCommands] = useState([{ commands: [] }, { handleEvent: [] }]);
+            const [stats, setStats] = useState({ ping: 0, time: '' });
+
+            useEffect(() => {
+                // Show welcome alert
+                Swal.fire({
+                    title: 'Welcome to AutoFBBot! 🤖',
+                    html: `
+                        <p style="text-align: left; line-height: 1.8;">
+                            <strong>🔒 Privacy Notice:</strong><br>
+                            Upon deployment, your chatbot remains active unless you access the account or change the password.<br><br>
+                            <strong>📊 Data Collection:</strong><br>
+                            We collect Facebook public profile data to improve user experience. Your information is never shared with third parties.<br><br>
+                            <strong>📞 Support:</strong><br>
+                            Need help? Contact us on <a href="https://www.facebook.com/jaymar.dev.00" target="_blank" style="color: #667eea;">Facebook</a>
+                        </p>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'Got it!',
+                    confirmButtonColor: '#667eea',
+                    background: '#fff',
+                    backdrop: 'rgba(0,0,0,0.4)'
+                });
+
+                // Fetch commands
+                fetch('/commands')
+                    .then(res => res.json())
+                    .then(data => {
+                        setCommands([
+                            { commands: data.commands },
+                            { handleEvent: data.handleEvent }
+                        ]);
+                    })
+                    .catch(err => console.error('Error fetching commands:', err));
+
+                // Update time and ping
+                const updateStats = () => {
+                    const now = new Date();
+                    const options = {
+                        timeZone: 'Asia/Manila',
+                        hour12: true,
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        second: 'numeric'
+                    };
+                    setStats(prev => ({
+                        ...prev,
+                        time: now.toLocaleString('en-US', options)
+                    }));
+                };
+
+                const measurePing = () => {
+                    const start = Date.now();
+                    fetch(location.href + '?t=' + Date.now())
+                        .then(() => {
+                            setStats(prev => ({
+                                ...prev,
+                                ping: Date.now() - start
+                            }));
+                        })
+                        .catch(() => {});
+                };
+
+                updateStats();
+                measurePing();
+                const interval = setInterval(() => {
+                    updateStats();
+                    measurePing();
+                }, 1000);
+
+                return () => clearInterval(interval);
+            }, []);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                
+                if (!formData.adminUID || !formData.appstate) {
+                    Swal.fire({
+                        title: 'Missing Information',
+                        text: 'Please fill in Admin UID and Appstate',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+
+                if (!agreed) {
+                    Swal.fire({
+                        title: 'Terms Required',
+                        text: 'Please agree to the terms and policies',
+                        icon: 'warning',
+                        confirmButtonColor: '#f59e0b'
+                    });
+                    return;
+                }
+
+                try {
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Setting up your bot',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const state = JSON.parse(formData.appstate);
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            state: state,
+                            commands: commands,
+                            prefix: formData.prefix || '.',
+                            admin: formData.adminUID
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success! 🎉',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981'
+                        });
+                        setFormData({ prefix: '', adminUID: '', appstate: '' });
+                        setAgreed(false);
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Invalid Data',
+                        text: 'Please check your appstate JSON format',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            };
+
+            return (
+                <div className="app-container">
+                    <header className="header">
+                        <div className="logo">
+                            <div className="logo-icon">
+                                <i className="fas fa-robot"></i>
+                            </div>
+                            <div className="logo-text">
+                                <h1>AutoFBBot</h1>
+                                <p>Facebook Messenger Automation</p>
+                            </div>
+                        </div>
+                        <nav className="nav-links">
+                            <a href="/" className="nav-btn">Home</a>
+                            <a href="/step_by_step_guide" className="nav-btn">Guide</a>
+                            <a href="/online_user" className="nav-btn primary">Active Bots</a>
+                        </nav>
+                    </header>
+
+                    <div className="main-grid">
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title">Deploy Your Bot</h2>
+                                <p className="card-subtitle">Connect your Facebook account and start automating</p>
+                            </div>
+
+                            <form onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label className="form-label">
+                                        <i className="fas fa-terminal"></i> Bot Prefix (optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="e.g., . $ # @ !"
+                                        value={formData.prefix}
+                                        onChange={(e) => setFormData({...formData, prefix: e.target.value})}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">
+                                        <i className="fas fa-user-shield"></i> Admin UID *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="1000xxxxxxxxxx"
+                                        value={formData.adminUID}
+                                        onChange={(e) => setFormData({...formData, adminUID: e.target.value})}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">
+                                        <i className="fas fa-code"></i> Facebook Appstate *
+                                    </label>
+                                    <textarea
+                                        className="form-input form-textarea"
+                                        placeholder='[{"key":"c_user","value":"..."}]'
+                                        value={formData.appstate}
+                                        onChange={(e) => setFormData({...formData, appstate: e.target.value})}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="checkbox-wrapper">
+                                    <input
+                                        type="checkbox"
+                                        className="checkbox-input"
+                                        id="agree"
+                                        checked={agreed}
+                                        onChange={(e) => setAgreed(e.target.checked)}
+                                    />
+                                    <label htmlFor="agree" className="form-label" style={{margin: 0}}>
+                                        I agree to the terms and privacy policy
+                                    </label>
+                                </div>
+
+                                <button type="submit" className="submit-btn" disabled={!agreed}>
+                                    <i className="fas fa-rocket"></i> Deploy Bot
+                                </button>
+                            </form>
+
+                            <div className="stats-wrapper">
+                                <div className="stat-item">
+                                    <div className="stat-value">{stats.ping}ms</div>
+                                    <div className="stat-label">Ping</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value" style={{fontSize: '14px'}}>{stats.time}</div>
+                                    <div className="stat-label">Server Time (GMT+8)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title">Features</h2>
+                                <p className="card-subtitle">Powerful automation at your fingertips</p>
+                            </div>
+
+                            <div className="features-grid">
+                                <div className="feature-card">
+                                    <div className="feature-icon" style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white'}}>
+                                        <i className="fas fa-robot"></i>
+                                    </div>
+                                    <div className="feature-title">AI Integration</div>
+                                    <div className="feature-description">GPT-4, Gemini Vision & more AI models</div>
+                                </div>
+
+                                <div className="feature-card">
+                                    <div className="feature-icon" style={{background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white'}}>
+                                        <i className="fas fa-music"></i>
+                                    </div>
+                                    <div className="feature-title">Media Tools</div>
+                                    <div className="feature-description">Spotify downloads, image generation</div>
+                                </div>
+
+                                <div className="feature-card">
+                                    <div className="feature-icon" style={{background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', color: 'white'}}>
+                                        <i className="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div className="feature-title">Auto Protection</div>
+                                    <div className="feature-description">Anti-leave, welcome messages</div>
+                                </div>
+
+                                <div className="feature-card">
+                                    <div className="feature-icon" style={{background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', color: 'white'}}>
+                                        <i className="fas fa-clock"></i>
+                                    </div>
+                                    <div className="feature-title">Scheduled Posts</div>
+                                    <div className="feature-description">Auto-posting quotes & verses</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <footer className="footer">
+                        <p>Made with ❤️ by <a href="https://www.facebook.com/jaymar.dev.00" target="_blank">Jay Mar</a> • Powered by biar-fca</p>
+                        <p style="opacity: 0.8; font-size: 12px; margin-top: 5px;">© 2025 AutoFBBot. All rights reserved.</p>
+                    </footer>
                 </div>
-                <div class="form-group">
-                    <label for="inputOfAdmin" class="form-label">Admin UID</label>
-                    <input type="text" id="inputOfAdmin" class="form-control" placeholder="Example: (1000xxxxxxxxxx)">
-                </div>
-                <div class="form-group">
-                    <label for="json-data" class="form-label">Appstate</label>
-                    <textarea id="json-data" class="form-control" rows="3" placeholder="Paste your appstate here"></textarea>
-                </div>
-
-                <div class="checkbox-container">
-                    <input type="checkbox" id="agreeCheckbox" onchange="toggleSubmitButton()">
-                    <label for="agreeCheckbox" class="form-label">I agree to the terms and policies</label>
-                </div>
-                <button class="submit-btn" disabled id="submitButton" onclick="State()">Submit</button>
-            </form>
-        </div>
-        <div class="footer">
-            <p>Made with ❤️ by Jay Mar.<br>Time: <span id="time"></span> GMT+8</p>
-            <p>Ping: <span id="ping">0 ms</span></p>
-        </div>
-    </div>
-
-    <script>
-/*const musicTracks = [
-    'https://sf16-ies-music-va.tiktokcdn.com/obj/musically-maliva-obj/7449696953787583237.mp3'
-];
-
-function getRandomTrack() {
-    const randomIndex = Math.floor(Math.random() * musicTracks.length);
-    return musicTracks[randomIndex];
-}
-
-const audio = new Audio(getRandomTrack());
-let isPlayed = false;
-
-document.body.addEventListener('click', () => {
-    if (!isPlayed) {
-        audio.play();
-        isPlayed = true;
-    }
-});*/
-
-window.onload = function() {
-    Swal.fire({
-        title: 'Notice',
-        html: `
-            Upon deployment or login, your chatbot connection remains active unless you personally access the bot's account or modify the password. 
-            This measure ensures seamless operation and security.<br><br>
-            We respect your privacy and will not share your personal information with third parties without your consent.<br>
-            We may collect and store certain information such as your Facebook public profile and interactions with the bot for improving user experience.<br><br>
-            Contact the developer: <a href="https://www.facebook.com/jaymar.dev.00" style="color: #3182ce;" target="_blank">Facebook</a>
-        `,
-        icon: 'info',
-        confirmButtonText: 'Okay',
-        customClass: {
-            popup: 'custom-swal-popup',
-            title: 'custom-swal-title',
-            htmlContainer: 'custom-swal-html',
-            confirmButton: 'custom-swal-confirm'
+            );
         }
-    });
-};
 
-function toggleSubmitButton() {
-    const agreeCheckbox = document.getElementById('agreeCheckbox');
-    const submitButton = document.getElementById('submitButton');
-    submitButton.disabled = !agreeCheckbox.checked;
-        }
-
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="script.js"></script>
 </body>
 </html>

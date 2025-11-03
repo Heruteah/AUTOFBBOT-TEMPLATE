@@ -1,8 +1,8 @@
 # Overview
 
-This is a Facebook Messenger bot application built with Node.js that automates interactions on Facebook Messenger. The bot uses the `biar-fca` library (a Facebook Chat API wrapper) to handle authentication and messaging, and implements a modular command system with event handlers. It includes a web interface for bot configuration and monitoring, allowing users to submit Facebook authentication credentials (appState JSON) to activate the bot.
+This is an automated Facebook Messenger bot built with Node.js that uses the `biar-fca` library to interact with Facebook's messaging platform. The bot features a plugin-based command system, automatic event handling, scheduled tasks, and a web interface for bot management and user authentication.
 
-The bot supports multiple command types including AI integrations (Gemini, O3-Mini), utility commands (help, uid, unsend), media commands (Spotify, image generation), and automated features like welcome messages and anti-leave protection.
+The bot automatically restarts on certain exit codes, loads commands and event handlers dynamically from the `script` directory, and provides features like AI chat integration, image generation, music downloads, and automated posting.
 
 # User Preferences
 
@@ -10,126 +10,122 @@ Preferred communication style: Simple, everyday language.
 
 # System Architecture
 
-## Application Entry Point
-The application uses a two-tier process architecture with automatic restart capabilities:
-- `index.js` - Process supervisor that spawns and monitors the main application
-- `main.js` - Core bot application that handles Facebook login and command execution
-- Automatic restart on exit code 1 enables fault tolerance and recovery from transient errors
+## Command & Event System
+**Problem**: Need a scalable way to add new bot commands and event handlers without modifying core code.
 
-**Rationale**: This supervisor pattern ensures the bot remains operational even after crashes or intentional restarts, improving reliability for 24/7 operation.
+**Solution**: Plugin-based architecture where commands and events are loaded dynamically from the `script` directory. Each script exports a `config` object and either a `run` function (for commands) or `handleEvent` function (for events).
 
-## Command System Architecture
-The bot implements a dynamic, file-based command loading system:
-- Commands are organized in the `/script` directory with automatic discovery
-- Each command module exports a standardized config object (name, role, version, hasPrefix, aliases, description, usage, credits, cooldown)
-- Commands are stored in a Map structure for O(1) lookup by name or alias
-- Role-based access control (0=user, 2=admin) restricts command execution
-- Cooldown system prevents command spam using a separate cooldown Map
+**Rationale**: This modular approach allows for easy extensibility - new features can be added by simply dropping new files into the script folder. Commands are stored in a Map structure for O(1) lookup performance.
 
-**Design Decisions**:
-- **Problem**: Need flexible command management without hardcoding
-- **Solution**: File-based modular system with hot-loading capability
-- **Pros**: Easy to add/remove commands, clear separation of concerns, scalable
-- **Cons**: No validation at startup, potential for malformed modules
+## Process Management
+**Problem**: Bot needs to stay online and recover from crashes automatically.
 
-## Event Handler System
-Event handlers operate separately from commands:
-- Located in `/script/event` subdirectory
-- Handle Facebook Messenger events (joins, leaves, unsends, etc.)
-- Each handler exports config and handleEvent function
-- Stored in separate Map for event-based dispatch
+**Solution**: Two-layer process architecture with `index.js` as a watchdog process that spawns `main.js`. Exit code 1 triggers automatic restart.
 
-**Rationale**: Separating event handlers from commands allows passive monitoring and automatic responses without user interaction.
+**Rationale**: Separating the watchdog from the main bot process provides resilience. The bot can intentionally exit with code 1 to trigger a clean restart without manual intervention.
 
-## Web Interface
-Express-based web server provides user interface:
-- Static file serving from `/public` directory
-- HTML pages: index.html (home), guide.html (setup instructions), online.html (active users)
-- Body-parser middleware for JSON payload processing
-- Bootstrap 4 + Font Awesome for UI components
+## Role-Based Access Control
+**Problem**: Different commands need different permission levels.
 
-**Purpose**: Allows non-technical users to configure the bot by submitting Facebook credentials through a web form instead of editing files.
+**Solution**: Role system (0 = user, 2 = admin) defined in command configs, with admin UIDs stored in `data/config.json`.
 
-## Authentication Flow
-Facebook authentication uses the `biar-fca` library:
-- Accepts appState JSON (Facebook session cookies) for login
-- Supports force login and event listening via fcaOption configuration
-- Credentials stored in `/data/config.json`
-- Admin UIDs defined in masterKey.admin array for privileged access
+**Rationale**: Simple integer-based roles provide sufficient granularity for a messaging bot while remaining easy to understand and implement.
 
-**Security Consideration**: AppState contains sensitive session tokens; the application relies on users protecting this data.
+## Cooldown System
+**Problem**: Prevent command spam and API abuse.
+
+**Solution**: Cooldown Map tracking user/command pairs with configurable delays per command.
+
+**Rationale**: Per-command cooldowns allow flexibility - expensive operations (AI, image generation) can have longer cooldowns than simple utilities.
 
 ## Configuration Management
-JSON-based configuration with default creation:
-- `/data/config.json` - Bot settings (masterKey, fcaOption)
-- `/data/history.json` - Conversation/action history tracking
-- createConfig() function generates defaults if missing
+**Problem**: Bot needs persistent configuration and FCA (Facebook Chat API) options.
 
-**Trade-offs**: JSON files are simple but lack schema validation and can be corrupted by manual editing.
+**Solution**: JSON-based configuration in `data/config.json` with FCA options, admin lists, and bot settings. Auto-creates default config if missing.
 
-## Scheduling System
-Uses `node-cron` for time-based automation:
-- Autopost feature posts motivational quotes on schedule
-- Cron expressions define intervals (e.g., `*/15 * * * *` for every 15 minutes)
-- Cooldown mechanism prevents spam if scheduler runs too frequently
+**Rationale**: JSON provides human-readable configuration that can be easily edited. Separate data directory keeps user data isolated from code.
 
-**Alternative Considered**: node-schedule was included as dependency but cron was chosen for simpler syntax.
+## Web Interface
+**Problem**: Users need a way to authenticate the bot and manage settings without command-line access.
+
+**Solution**: Express.js web server serving HTML interfaces for bot setup, guide pages, and active user monitoring.
+
+**Rationale**: Web interface lowers the barrier to entry - users can set up the bot through a browser instead of editing config files directly.
+
+## Scheduled Tasks
+**Problem**: Bot needs to perform actions at specific times (auto-posting quotes, verses).
+
+**Solution**: node-cron integration for scheduled tasks, particularly in the autopost event handler.
+
+**Rationale**: Cron syntax provides familiar and flexible scheduling. Tasks run independently of user interactions.
+
+## Event Handling
+**Problem**: React to Facebook events like user joins, message unsends, member leaving.
+
+**Solution**: Separate event handler modules in `script/event/` that process specific Facebook event types (log:subscribe, message_unsend, etc.).
+
+**Rationale**: Event-driven architecture naturally maps to Facebook's event system. Each event type has dedicated logic without cluttering command handlers.
+
+## Message Unsend Recovery
+**Problem**: Users can unsend messages, hiding potentially important content.
+
+**Solution**: Cache all messages in memory indexed by messageID, then retrieve and resend when unsend event occurs.
+
+**Rationale**: Provides transparency in group conversations. Memory-based cache is simple but will reset on bot restart (acceptable tradeoff for this use case).
+
+## Anti-Leave Mechanism
+**Problem**: Prevent users from leaving specific groups.
+
+**Solution**: `antiout.js` event handler that detects leave events and immediately re-adds the user.
+
+**Rationale**: Useful for mandatory groups or educational settings. Uses Facebook's native add-user functionality.
 
 # External Dependencies
 
-## Core Facebook Integration
-- **biar-fca** (v3.8.7) - Facebook Chat API wrapper for authentication and messaging
-  - Handles login, message sending/receiving, and event listening
-  - Provides anti-detection mechanisms for bot operation
-  - Fork of ws3-fca with enhanced features
+## Third-Party APIs
 
-## AI Services
-- **Kaiz APIs** (kaiz-apis.gleeze.com) - Third-party API provider requiring API keys
-  - O3-Mini AI model endpoint for conversational AI
-  - Gemini Vision API for image analysis and text generation
-  - Fotor API for AI image generation
-  - API key must be configured in command files (ai.js, gemini.js, imagine.js)
+1. **biar-fca** (Facebook Chat API)
+   - Purpose: Core library for Facebook Messenger interaction
+   - Handles authentication, message sending/receiving, and event monitoring
 
-- **Hercai** (v12.2.0) - Alternative AI integration library (installed but not actively used in provided code)
+2. **Kohi API Library** (`api-library-kohi.onrender.com`)
+   - GPT-4o AI chat (text and image understanding)
+   - GPT-5/Copilot AI chat
+   - Pollinations image generation (Flux model)
 
-## Media & Content Services
-- **Hiroshi API** (hiroshi-api.onrender.com) - Spotify song download service
-  - Converts Spotify tracks to MP3 format
-  - No authentication required
+3. **Zetsu API** (`api.zetsu.xyz`)
+   - Welcome canvas image generation with user avatars and group info
 
-- **Mademoiselle2 REST APIs** (mademoiselle2-rest-apis.onrender.com) - Bible verse API
-  - Provides random Bible verses
-  - No authentication required
+4. **Hiroshi API** (`hiroshi-api.onrender.com`)
+   - Spotify song search and MP3 download
 
-- **Zetsu API** (api.zetsu.xyz) - Canvas/image generation for welcome messages
-  - Creates customized welcome images with user info and group details
+5. **Mademoiselle API** (`mademoiselle2-rest-apis.onrender.com`)
+   - Bible verse fetching
 
-- **GitHub Raw Content** - Quote database for autopost feature
-  - JamesFT/Database-Quotes-JSON repository for motivational quotes
+6. **Bible.org Labs API** (`labs.bible.org`)
+   - Random Bible verse generation for auto-posting
 
-## Web Server & HTTP
-- **Express** (v4.18.2) - Web application framework
-- **body-parser** (v1.20.2) - HTTP request body parsing middleware
-- **axios** (v1.6.5) - HTTP client for API requests
+7. **GitHub Raw Content**
+   - Quote database from JamesFT/Database-Quotes-JSON for motivational auto-posts
 
-## Utilities & Helpers
-- **chalk** (v3.0.0) - Terminal string styling for colored console output
-- **moment-timezone** (v0.5.37) - Timezone-aware date/time handling
-- **luxon** (v3.4.4) - Alternative datetime library
-- **node-cron** (v3.0.3) - Task scheduler for automated posting
-- **canvas** (v2.9.3) - Image manipulation (likely for custom graphics)
-- **cheerio** (v0.22.0) - HTML parsing and web scraping
-- **yt-search** (v2.10.4), **ytdl-core** (v4.11.4) - YouTube integration (installed but not used in provided code)
+## Key NPM Packages
 
-## File System & Process Management
-- **fs-extra** (v11.1.1) - Enhanced file system operations
-- **child_process** (v1.0.2) - Process spawning for supervisor pattern
-- **pidusage** (v3.0.0) - Process resource monitoring
+- **express**: Web server for bot management interface
+- **axios**: HTTP client for API requests
+- **node-cron**: Scheduled task execution
+- **chalk**: Terminal output formatting
+- **canvas**: Server-side image manipulation (if needed)
+- **moment-timezone**: Timezone-aware date/time handling
+- **ytdl-core**: YouTube video downloading
+- **yt-search**: YouTube search functionality
 
 ## Data Storage
-- **File-based JSON storage** for configuration and history
-  - No database system currently implemented
-  - Config indicates database support is disabled (database: false)
-  - Future database integration may use Postgres/Drizzle based on project dependencies pattern
 
-**Note**: The application architecture supports adding a database layer (masterKey.database flag exists) but currently relies on JSON file storage for simplicity.
+- **File-based JSON**: Configuration (`data/config.json`) and history (`data/history.json`)
+- **In-memory Maps**: Commands, event handlers, user accounts, cooldowns, and message cache
+- No database currently configured, though the config includes a database flag for potential future integration
+
+## Authentication
+
+- **Facebook Cookies/AppState**: Bot authenticates to Facebook using JSON appstate provided through the web interface
+- Admin authentication based on Facebook UID list in config.json
